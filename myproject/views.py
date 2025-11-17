@@ -26,6 +26,16 @@ class RegisterView(generics.GenericAPIView):
     permission_classes = [AllowAny]
 
 
+    def post(self, request):
+        serializer = self.get_serializer(data=request.data)
+        
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'message': 'User registered successfully'}, status=201)
+        
+        return Response(serializer.errors, status=400)
+
+
 class loginView(generics.GenericAPIView):
     permission_classes = [AllowAny]
 
@@ -35,7 +45,7 @@ class loginView(generics.GenericAPIView):
 
 
         user = authenticate(username=username_or_email, password=password)
-        if user is not None:
+        if user is None:
             try:
                 user_object = User.objects.get(email=username_or_email)
                 user = authenticate(username=user_object.username, password=password)
